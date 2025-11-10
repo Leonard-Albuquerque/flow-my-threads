@@ -3,7 +3,10 @@ import { Dashboard } from "@/components/Dashboard";
 import { TransactionForm, Transaction } from "@/components/TransactionForm";
 import { TransactionList } from "@/components/TransactionList";
 import { CashFlowChart } from "@/components/CashFlowChart";
-import { Store } from "lucide-react";
+import { Store, FileDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { exportToExcel } from "@/lib/exportUtils";
+import { toast } from "sonner";
 
 const Index = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -31,6 +34,15 @@ const Index = () => {
 
   const balance = totalInvestment + totalIncome - totalExpense;
 
+  const handleExportExcel = () => {
+    if (transactions.length === 0) {
+      toast.error("Nenhuma transação para exportar");
+      return;
+    }
+    exportToExcel(transactions);
+    toast.success("Relatório exportado com sucesso!");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -51,6 +63,18 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
+          {/* Export Button */}
+          <div className="flex justify-end">
+            <Button 
+              onClick={handleExportExcel}
+              variant="outline"
+              className="gap-2"
+            >
+              <FileDown className="h-4 w-4" />
+              Exportar para Excel
+            </Button>
+          </div>
+
           {/* Dashboard Cards */}
           <Dashboard
             balance={balance}

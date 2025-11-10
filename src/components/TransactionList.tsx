@@ -79,11 +79,6 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
                   {getTypeIcon(transaction.type)}
                   <div>
                     <p className="font-medium">{transaction.description}</p>
-                    {transaction.isProduct && transaction.size && transaction.color && (
-                      <p className="text-xs text-muted-foreground">
-                        Tamanho: {transaction.size} • Cor: {transaction.color}
-                      </p>
-                    )}
                     <p className="text-sm text-muted-foreground">
                       {formatDate(transaction.date)}
                     </p>

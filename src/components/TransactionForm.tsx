@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export type TransactionType = "income" | "expense" | "investment";
@@ -21,9 +20,6 @@ export interface Transaction {
   amount: number;
   description: string;
   date: string;
-  isProduct?: boolean;
-  size?: string;
-  color?: string;
 }
 
 interface TransactionFormProps {
@@ -34,9 +30,6 @@ export const TransactionForm = ({ onAddTransaction }: TransactionFormProps) => {
   const [type, setType] = useState<TransactionType>("income");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [isProduct, setIsProduct] = useState(false);
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,21 +39,11 @@ export const TransactionForm = ({ onAddTransaction }: TransactionFormProps) => {
       return;
     }
 
-    if (type === "income" && isProduct && (!size || !color)) {
-      toast.error("Preencha tamanho e cor do produto");
-      return;
-    }
-
     const transaction = {
       type,
       amount: parseFloat(amount),
       description,
       date: new Date().toISOString(),
-      ...(type === "income" && isProduct && {
-        isProduct: true,
-        size,
-        color,
-      }),
     };
 
     onAddTransaction(transaction);
@@ -68,9 +51,6 @@ export const TransactionForm = ({ onAddTransaction }: TransactionFormProps) => {
     // Reset form
     setAmount("");
     setDescription("");
-    setIsProduct(false);
-    setSize("");
-    setColor("");
     
     toast.success("Transação adicionada com sucesso!");
   };
@@ -117,52 +97,6 @@ export const TransactionForm = ({ onAddTransaction }: TransactionFormProps) => {
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-
-          {type === "income" && (
-            <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isProduct"
-                  checked={isProduct}
-                  onCheckedChange={(checked) => setIsProduct(checked as boolean)}
-                />
-                <Label htmlFor="isProduct" className="cursor-pointer">
-                  É um produto (roupa)?
-                </Label>
-              </div>
-
-              {isProduct && (
-                <div className="space-y-4 pl-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="size">Tamanho</Label>
-                    <Select value={size} onValueChange={setSize}>
-                      <SelectTrigger id="size">
-                        <SelectValue placeholder="Selecione o tamanho" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PP">PP</SelectItem>
-                        <SelectItem value="P">P</SelectItem>
-                        <SelectItem value="M">M</SelectItem>
-                        <SelectItem value="G">G</SelectItem>
-                        <SelectItem value="GG">GG</SelectItem>
-                        <SelectItem value="XG">XG</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="color">Cor</Label>
-                    <Input
-                      id="color"
-                      placeholder="Ex: Preto, Branco, Azul..."
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           <Button type="submit" className="w-full">
             Adicionar Transação

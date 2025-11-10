@@ -1,12 +1,78 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Dashboard } from "@/components/Dashboard";
+import { TransactionForm, Transaction } from "@/components/TransactionForm";
+import { TransactionList } from "@/components/TransactionList";
+import { CashFlowChart } from "@/components/CashFlowChart";
+import { Store } from "lucide-react";
 
 const Index = () => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  const addTransaction = (transaction: Omit<Transaction, "id">) => {
+    const newTransaction = {
+      ...transaction,
+      id: crypto.randomUUID(),
+    };
+    setTransactions([newTransaction, ...transactions]);
+  };
+
+  // Calculate metrics
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalInvestment = transactions
+    .filter((t) => t.type === "investment")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = totalInvestment + totalIncome - totalExpense;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Store className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Controle Financeiro</h1>
+              <p className="text-sm text-muted-foreground">Gestão da sua loja de roupas</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-8">
+          {/* Dashboard Cards */}
+          <Dashboard
+            balance={balance}
+            totalIncome={totalIncome}
+            totalExpense={totalExpense}
+            totalInvestment={totalInvestment}
+          />
+
+          {/* Chart */}
+          <CashFlowChart transactions={transactions} />
+
+          {/* Form and List */}
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-1">
+              <TransactionForm onAddTransaction={addTransaction} />
+            </div>
+            <div className="lg:col-span-2">
+              <TransactionList transactions={transactions} />
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

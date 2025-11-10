@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Transaction } from "./TransactionForm";
+import { Transaction } from "@/types";
+import { Product } from "@/types";
 import { ArrowDownCircle, ArrowUpCircle, DollarSign } from "lucide-react";
 
 interface TransactionListProps {
   transactions: Transaction[];
+  products: Product[];
 }
 
-export const TransactionList = ({ transactions }: TransactionListProps) => {
+export const TransactionList = ({ transactions, products }: TransactionListProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -82,6 +84,21 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
                     <p className="text-sm text-muted-foreground">
                       {formatDate(transaction.date)}
                     </p>
+                    {transaction.productId && transaction.quantity && (
+                      <p className="text-xs text-muted-foreground">
+                        Produto: {products.find(p => p.id === transaction.productId)?.name} (Qtd: {transaction.quantity})
+                      </p>
+                    )}
+                    {transaction.products && transaction.products.length > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        <p>Produtos:</p>
+                        {transaction.products.map((item, index) => (
+                          <p key={index}>
+                            {products.find(p => p.id === item.productId)?.name} (Qtd: {item.quantity}, R$ {item.sellingPrice.toFixed(2).replace('.', ',')})
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">

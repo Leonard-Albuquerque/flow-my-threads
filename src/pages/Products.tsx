@@ -93,7 +93,7 @@ const Products = () => {
                         <div className="space-y-1">
                           <h3 className="font-medium">{product.name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            Custo: R$ {product.costPrice.toFixed(2)}
+                            Custo: R$ {Number(product.costPrice).toFixed(2)}
                           </p>
                           {product.color && (
                             <p className="text-sm text-muted-foreground">

@@ -1,97 +1,113 @@
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { TransactionForm } from "@/components/TransactionForm";
 import { TransactionList } from "@/components/TransactionList";
 import { CashFlowChart } from "@/components/CashFlowChart";
-import { Store, FileDown, Package } from "lucide-react";
+import { Store, FileDown, Package, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exportToExcel } from "@/lib/exportUtils";
+import { exportToExcel, importFromExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-import { Product, Transaction } from "@/types";
+import { Transaction } from "@/types";
 import { useProducts } from "@/contexts/ProductContext";
+import { transactionsApi, dashboardApi } from "@/services/api";
 
 const Index = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { products, updateProductQuantity } = useProducts();
+  const [metrics, setMetrics] = useState({
+    balance: 0,
+    totalIncome: 0,
+    totalExpense: 0,
+    totalInvestment: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const { products, refreshProducts } = useProducts();
 
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    const newTransaction = {
-      ...transaction,
-      id: crypto.randomUUID(),
-    };
-    setTransactions([newTransaction, ...transactions]);
+  const loadTransactions = async () => {
+    try {
+      setLoading(true);
+      const data = await transactionsApi.getAll();
+      setTransactions(data);
+    } catch (error) {
+      console.error("Erro ao carregar transações:", error);
+      toast.error("Erro ao carregar transações");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const sellProduct = (productId: string, quantity: number, sellingPrice: number) => {
-    const product = products.find(p => p.id === productId);
-    if (!product || product.quantity < quantity) {
-      toast.error("Produto não encontrado ou quantidade insuficiente");
-      return;
+  const loadMetrics = async () => {
+    try {
+      const data = await dashboardApi.getMetrics();
+      setMetrics(data);
+    } catch (error) {
+      console.error("Erro ao carregar métricas:", error);
+      toast.error("Erro ao carregar métricas");
     }
-
-    // Update product quantity
-    updateProductQuantity(productId, product.quantity - quantity);
-
-    // Add sale transaction
-    const saleTransaction: Omit<Transaction, "id"> = {
-      type: "income",
-      amount: sellingPrice * quantity,
-      description: `Venda de ${quantity}x ${product.name}`,
-      date: new Date().toISOString(),
-      productId,
-      quantity,
-    };
-    addTransaction(saleTransaction);
   };
 
-  const sellMultipleProducts = (productSales: Array<{ productId: string; quantity: number; sellingPrice: number }>) => {
-    let totalAmount = 0;
-    const productNames: string[] = [];
+  useEffect(() => {
+    loadTransactions();
+    loadMetrics();
+  }, []);
 
-    for (const sale of productSales) {
-      const product = products.find(p => p.id === sale.productId);
-      if (!product || product.quantity < sale.quantity) {
-        toast.error(`Produto ${product?.name || 'não encontrado'} com quantidade insuficiente`);
-        return;
-      }
-      totalAmount += sale.sellingPrice * sale.quantity;
-      productNames.push(`${sale.quantity}x ${product.name}`);
+  const addTransaction = async (transaction: Omit<Transaction, "id">) => {
+    try {
+      setLoading(true);
+      const newTransaction = await transactionsApi.create(transaction);
+      setTransactions([newTransaction, ...transactions]);
+      await loadMetrics();
+      toast.success("Transação criada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao criar transação:", error);
+      toast.error("Erro ao criar transação");
+    } finally {
+      setLoading(false);
     }
-
-    // Update all product quantities
-    for (const sale of productSales) {
-      const product = products.find(p => p.id === sale.productId);
-      if (product) {
-        updateProductQuantity(sale.productId, product.quantity - sale.quantity);
-      }
-    }
-
-    // Add sale transaction
-    const saleTransaction: Omit<Transaction, "id"> = {
-      type: "income",
-      amount: totalAmount,
-      description: `Venda múltipla: ${productNames.join(', ')}`,
-      date: new Date().toISOString(),
-      products: productSales,
-    };
-    addTransaction(saleTransaction);
   };
 
-  // Calculate metrics
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const sellProduct = async (productId: string, quantity: number, sellingPrice: number) => {
+    try {
+      setLoading(true);
+      const newTransaction = await transactionsApi.createSale({
+        productId,
+        quantity,
+        sellingPrice,
+        date: new Date().toISOString(),
+      });
+      setTransactions([newTransaction, ...transactions]);
+      await refreshProducts();
+      await loadMetrics();
+      toast.success("Venda registrada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao registrar venda:", error);
+      const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Erro ao registrar venda";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalExpense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalInvestment = transactions
-    .filter((t) => t.type === "investment")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const balance = totalInvestment + totalIncome - totalExpense;
+  const sellMultipleProducts = async (productSales: Array<{ productId: string; quantity: number; sellingPrice: number }>) => {
+    try {
+      setLoading(true);
+      const newTransaction = await transactionsApi.createMultipleSale({
+        products: productSales,
+        date: new Date().toISOString(),
+      });
+      setTransactions([newTransaction, ...transactions]);
+      await refreshProducts();
+      await loadMetrics();
+      toast.success("Venda múltipla registrada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao registrar venda múltipla:", error);
+      const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Erro ao registrar venda múltipla";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExportExcel = () => {
     if (transactions.length === 0) {
@@ -100,6 +116,45 @@ const Index = () => {
     }
     exportToExcel(transactions);
     toast.success("Relatório exportado com sucesso!");
+  };
+
+  const handleImportExcel = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      toast.error("Por favor, selecione um arquivo Excel (.xlsx ou .xls)");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const importedTransactions = await importFromExcel(file);
+
+      if (importedTransactions.length === 0) {
+        toast.error("Nenhum dado válido encontrado no arquivo");
+        return;
+      }
+
+      // Adicionar transações via API
+      for (const transaction of importedTransactions) {
+        await transactionsApi.create(transaction);
+      }
+
+      // Recarregar dados
+      await loadTransactions();
+      await loadMetrics();
+
+      toast.success(`${importedTransactions.length} transação(ões) importada(s) com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao importar arquivo:", error);
+      toast.error(error instanceof Error ? error.message : "Erro ao importar arquivo");
+    } finally {
+      setLoading(false);
+      // Limpar input file
+      event.target.value = '';
+    }
   };
 
   return (
@@ -130,9 +185,9 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Export Button */}
-          <div className="flex justify-end">
-            <Button 
+          {/* Export/Import Buttons */}
+          <div className="flex justify-end gap-2">
+            <Button
               onClick={handleExportExcel}
               variant="outline"
               className="gap-2"
@@ -140,14 +195,33 @@ const Index = () => {
               <FileDown className="h-4 w-4" />
               Exportar para Excel
             </Button>
+            <div>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleImportExcel}
+                className="hidden"
+                id="excel-import"
+                disabled={loading}
+              />
+              <Button
+                variant="outline"
+                className="gap-2"
+                disabled={loading}
+                onClick={() => document.getElementById('excel-import')?.click()}
+              >
+                <FileUp className="h-4 w-4" />
+                Importar do Excel
+              </Button>
+            </div>
           </div>
 
           {/* Dashboard Cards */}
           <Dashboard
-            balance={balance}
-            totalIncome={totalIncome}
-            totalExpense={totalExpense}
-            totalInvestment={totalInvestment}
+            balance={metrics.balance}
+            totalIncome={metrics.totalIncome}
+            totalExpense={metrics.totalExpense}
+            totalInvestment={metrics.totalInvestment}
           />
 
           {/* Chart */}

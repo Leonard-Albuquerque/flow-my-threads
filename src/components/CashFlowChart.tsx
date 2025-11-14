@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Transaction } from "./TransactionForm";
+import { Transaction } from "@/types";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface CashFlowChartProps {
@@ -19,9 +19,9 @@ export const CashFlowChart = ({ transactions }: CashFlowChartProps) => {
       const lastBalance = acc.length > 0 ? acc[acc.length - 1].saldo : 0;
       
       let change = 0;
-      if (transaction.type === "income" || transaction.type === "investment") {
+      if (transaction.type === "INCOME" || transaction.type === "INVESTMENT") {
         change = transaction.amount;
-      } else if (transaction.type === "expense") {
+      } else if (transaction.type === "EXPENSE") {
         change = -transaction.amount;
       }
 

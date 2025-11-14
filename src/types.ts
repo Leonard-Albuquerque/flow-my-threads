@@ -9,7 +9,7 @@ export interface Product {
 
 export interface Transaction {
   id: string;
-  type: "income" | "expense" | "investment";
+  type: "INCOME" | "EXPENSE" | "INVESTMENT";
   amount: number;
   description: string;
   date: string;

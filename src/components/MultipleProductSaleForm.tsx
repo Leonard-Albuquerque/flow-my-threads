@@ -72,7 +72,7 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
     if (!sale.productId || !sale.sellingPrice) return sum;
     const product = products.find(p => p.id === sale.productId);
     if (!product) return sum;
-    return sum + (sale.sellingPrice - product.costPrice) * sale.quantity;
+    return sum + (sale.sellingPrice - parseFloat(product.costPrice.toString())) * sale.quantity;
   }, 0);
 
   return (
@@ -111,7 +111,7 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
                     <SelectContent>
                       {products.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
-                          {product.name} (Estoque: {product.quantity}) - Custo: R$ {product.costPrice.toFixed(2)}
+                          {product.name} (Estoque: {product.quantity}) - Custo: R$ {parseFloat(product.costPrice.toString()).toFixed(2)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -148,7 +148,7 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
                     Lucro: R$ {(() => {
                       const product = products.find(p => p.id === sale.productId);
                       if (!product) return "0,00";
-                      const profit = (sale.sellingPrice - product.costPrice) * sale.quantity;
+                      const profit = (sale.sellingPrice - parseFloat(product.costPrice.toString())) * sale.quantity;
                       return profit.toFixed(2).replace('.', ',');
                     })()}
                   </div>

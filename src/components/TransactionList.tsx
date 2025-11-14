@@ -29,33 +29,33 @@ export const TransactionList = ({ transactions, products }: TransactionListProps
 
   const getTypeIcon = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return <ArrowUpCircle className="h-4 w-4 text-success" />;
-      case "expense":
+      case "EXPENSE":
         return <ArrowDownCircle className="h-4 w-4 text-destructive" />;
-      case "investment":
+      case "INVESTMENT":
         return <DollarSign className="h-4 w-4 text-primary" />;
     }
   };
 
   const getTypeLabel = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return "Venda";
-      case "expense":
+      case "EXPENSE":
         return "Compra";
-      case "investment":
+      case "INVESTMENT":
         return "Investimento";
     }
   };
 
   const getTypeBadgeVariant = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return "default" as const;
-      case "expense":
+      case "EXPENSE":
         return "destructive" as const;
-      case "investment":
+      case "INVESTMENT":
         return "secondary" as const;
     }
   };
@@ -104,14 +104,14 @@ export const TransactionList = ({ transactions, products }: TransactionListProps
                 <div className="text-right">
                   <p
                     className={`font-bold ${
-                      transaction.type === "income"
+                      transaction.type === "INCOME"
                         ? "text-success"
-                        : transaction.type === "expense"
+                        : transaction.type === "EXPENSE"
                         ? "text-destructive"
                         : "text-primary"
                     }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}
+                    {transaction.type === "INCOME" ? "+" : "-"}
                     {formatCurrency(transaction.amount)}
                   </p>
                   <Badge variant={getTypeBadgeVariant(transaction.type)} className="mt-1">

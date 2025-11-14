@@ -15,8 +15,8 @@ import { ProductForm } from "./ProductForm";
 import { MultipleProductSaleForm } from "./MultipleProductSaleForm";
 import { Product, Transaction } from "@/types";
 
-export type TransactionType = "income" | "expense" | "investment";
-export type TransactionTypeWithoutIncome = Exclude<TransactionType, "income">;
+export type TransactionType = "INCOME" | "EXPENSE" | "INVESTMENT";
+export type TransactionTypeWithoutIncome = Exclude<TransactionType, "INCOME">;
 
 
 interface TransactionFormProps {
@@ -32,7 +32,7 @@ export const TransactionForm = ({
   onSellMultipleProducts,
   products
 }: TransactionFormProps) => {
-  const [type, setType] = useState<TransactionType>("investment");
+  const [type, setType] = useState<TransactionType>("INVESTMENT");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
@@ -41,7 +41,7 @@ export const TransactionForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (type === "income") {
+    if (type === "INCOME") {
       // For sales, use the sell product function
       if (!selectedProductId || !quantity || !amount) {
         toast.error("Selecione um produto, quantidade e preço de venda");
@@ -95,9 +95,9 @@ export const TransactionForm = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* <SelectItem value="income">Venda</SelectItem>  */}
-                  <SelectItem value="expense">Compra</SelectItem>
-                  <SelectItem value="investment">Investimento</SelectItem>
+                  {/* <SelectItem value="INCOME">Venda</SelectItem>  */}
+                  <SelectItem value="EXPENSE">Compra</SelectItem>
+                  <SelectItem value="INVESTMENT">Investimento</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -114,7 +114,7 @@ export const TransactionForm = ({
               />
             </div>
 
-            {type === "income" && (
+            {type === "INCOME" && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="product">Produto</Label>
@@ -157,7 +157,7 @@ export const TransactionForm = ({
             </div>
 
             <Button type="submit" className="w-full">
-              {type === "income" ? "Vender Produto" : "Adicionar Transação"}
+              {type === "INCOME" ? "Vender Produto" : "Adicionar Transação"}
             </Button>
           </form>
         </CardContent>

@@ -162,13 +162,13 @@ const Index = () => {
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4 text-center md:text-left">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Store className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Controle Financeiro</h1>
+                <h1 className="text-2xl font-bold">MGF - Amí Fitness</h1>
                 <p className="text-sm text-muted-foreground">Gestão da sua loja de roupas</p>
               </div>
             </div>
@@ -225,7 +225,9 @@ const Index = () => {
           />
 
           {/* Chart */}
+         <div className="hidden md:block">
           <CashFlowChart transactions={transactions} />
+         </div>
 
           {/* Form and List */}
           <div className="grid gap-8 lg:grid-cols-3">

@@ -8,6 +8,11 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: [
+        "localhost",
+        ".ngrok-free.app",
+        // "cardapioapi-production-f508.up.railway.app", Vai ser a url do back end quando for pro ar
+      ],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

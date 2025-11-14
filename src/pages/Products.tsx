@@ -22,7 +22,7 @@ const Products = () => {
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4 text-center md:text-left">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Package className="h-6 w-6 text-primary" />

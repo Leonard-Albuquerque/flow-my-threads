@@ -118,30 +118,39 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor={`quantity-${index}`}>Quantidade</Label>
-                    <Input
-                      id={`quantity-${index}`}
-                      type="number"
-                      min="1"
-                      value={sale.quantity}
-                      onChange={(e) => updateProductSale(index, 'quantity', parseInt(e.target.value) || 1)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor={`price-${index}`}>Preço de Venda (R$)</Label>
-                    <Input
-                      id={`price-${index}`}
-                      type="number"
-                      step="0.01"
-                      placeholder="0,00"
-                      value={sale.sellingPrice || ""}
-                      onChange={(e) => updateProductSale(index, 'sellingPrice', parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`quantity-${index}`}>Quantidade</Label>
+                  <Input
+                    id={`quantity-${index}`}
+                    type="number"
+                    min="1"
+                    value={sale.quantity}
+                    onChange={(e) =>
+                      updateProductSale(index, "quantity", parseInt(e.target.value) || 1)
+                    }
+                  />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`price-${index}`}>Preço de Venda (R$)</Label>
+                  <Input
+                    id={`price-${index}`}
+                    type="number"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={sale.sellingPrice || ""}
+                    onChange={(e) =>
+                      updateProductSale(
+                        index,
+                        "sellingPrice",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                  />
+                </div>
+               </div>
+
 
                 {sale.productId && sale.sellingPrice > 0 && (
                   <div className="text-sm text-muted-foreground">

@@ -8,7 +8,7 @@ interface CashFlowChartProps {
 
 export const CashFlowChart = ({ transactions }: CashFlowChartProps) => {
   // Group transactions by date and calculate cumulative balance
-  const chartData = transactions
+  const chartData = (transactions || [])
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .reduce((acc, transaction) => {
       const date = new Date(transaction.date).toLocaleDateString('pt-BR', {

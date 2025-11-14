@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from "react";
 import { Product } from "@/types";
 import { productsApi } from "@/services/api";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProductContextType {
   products: Product[];
@@ -27,10 +28,13 @@ interface ProductProviderProps {
 }
 
 export const ProductProvider = ({ children }: ProductProviderProps) => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const refreshProducts = async () => {
+  const refreshProducts = useCallback(async () => {
+    if (!isAuthenticated) return; // Não carrega se não autenticado
+    
     try {
       setLoading(true);
       const data = await productsApi.getAll();
@@ -41,17 +45,17 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     refreshProducts();
-  }, []);
+  }, [isAuthenticated, refreshProducts]); // Recarrega quando autenticação muda
 
-  const addProduct = async (product: Omit<Product, "id">) => {
+  const addProduct = useCallback(async (product: Omit<Product, "id">) => {
     try {
       setLoading(true);
       const newProduct = await productsApi.create(product);
-      setProducts([...products, newProduct]);
+      setProducts(prev => [...prev, newProduct]);
       toast.success("Produto criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar produto:", error);
@@ -60,13 +64,13 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateProductQuantity = async (productId: string, newQuantity: number) => {
+  const updateProductQuantity = useCallback(async (productId: string, newQuantity: number) => {
     try {
       setLoading(true);
       const updatedProduct = await productsApi.update(productId, { quantity: newQuantity });
-      setProducts(products.map(p =>
+      setProducts(prev => prev.map(p =>
         p.id === productId ? updatedProduct : p
       ));
       toast.success("Quantidade atualizada!");
@@ -77,13 +81,13 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteProduct = async (productId: string) => {
+  const deleteProduct = useCallback(async (productId: string) => {
     try {
       setLoading(true);
       await productsApi.delete(productId);
-      setProducts(products.filter(p => p.id !== productId));
+      setProducts(prev => prev.filter(p => p.id !== productId));
       toast.success("Produto deletado com sucesso!");
     } catch (error) {
       console.error("Erro ao deletar produto:", error);
@@ -92,17 +96,19 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    products,
+    loading,
+    addProduct,
+    updateProductQuantity,
+    deleteProduct,
+    refreshProducts
+  }), [products, loading, addProduct, updateProductQuantity, deleteProduct, refreshProducts]);
 
   return (
-    <ProductContext.Provider value={{ 
-      products, 
-      loading,
-      addProduct, 
-      updateProductQuantity,
-      deleteProduct,
-      refreshProducts
-    }}>
+    <ProductContext.Provider value={value}>
       {children}
     </ProductContext.Provider>
   );

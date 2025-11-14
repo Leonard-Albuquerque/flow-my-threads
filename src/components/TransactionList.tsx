@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Transaction } from "./TransactionForm";
+import { Transaction } from "@/types";
+import { Product } from "@/types";
 import { ArrowDownCircle, ArrowUpCircle, DollarSign } from "lucide-react";
 
 interface TransactionListProps {
   transactions: Transaction[];
+  products: Product[];
 }
 
-export const TransactionList = ({ transactions }: TransactionListProps) => {
+export const TransactionList = ({ transactions, products }: TransactionListProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -27,33 +29,33 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
 
   const getTypeIcon = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return <ArrowUpCircle className="h-4 w-4 text-success" />;
-      case "expense":
+      case "EXPENSE":
         return <ArrowDownCircle className="h-4 w-4 text-destructive" />;
-      case "investment":
+      case "INVESTMENT":
         return <DollarSign className="h-4 w-4 text-primary" />;
     }
   };
 
   const getTypeLabel = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return "Venda";
-      case "expense":
+      case "EXPENSE":
         return "Compra";
-      case "investment":
+      case "INVESTMENT":
         return "Investimento";
     }
   };
 
   const getTypeBadgeVariant = (type: Transaction["type"]) => {
     switch (type) {
-      case "income":
+      case "INCOME":
         return "default" as const;
-      case "expense":
+      case "EXPENSE":
         return "destructive" as const;
-      case "investment":
+      case "INVESTMENT":
         return "secondary" as const;
     }
   };
@@ -82,19 +84,34 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
                     <p className="text-sm text-muted-foreground">
                       {formatDate(transaction.date)}
                     </p>
+                    {transaction.productId && transaction.quantity && (
+                      <p className="text-xs text-muted-foreground">
+                        Produto: {products.find(p => p.id === transaction.productId)?.name} (Qtd: {transaction.quantity})
+                      </p>
+                    )}
+                    {transaction.products && transaction.products.length > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        <p>Produtos:</p>
+                        {transaction.products.map((item, index) => (
+                          <p key={index}>
+                            {products.find(p => p.id === item.productId)?.name} (Qtd: {item.quantity}, R$ {item.sellingPrice.toFixed(2).replace('.', ',')})
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">
                   <p
                     className={`font-bold ${
-                      transaction.type === "income"
+                      transaction.type === "INCOME"
                         ? "text-success"
-                        : transaction.type === "expense"
+                        : transaction.type === "EXPENSE"
                         ? "text-destructive"
                         : "text-primary"
                     }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}
+                    {transaction.type === "INCOME" ? "+" : "-"}
                     {formatCurrency(transaction.amount)}
                   </p>
                   <Badge variant={getTypeBadgeVariant(transaction.type)} className="mt-1">

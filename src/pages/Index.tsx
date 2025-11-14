@@ -4,13 +4,14 @@ import { Dashboard } from "@/components/Dashboard";
 import { TransactionForm } from "@/components/TransactionForm";
 import { TransactionList } from "@/components/TransactionList";
 import { CashFlowChart } from "@/components/CashFlowChart";
-import { Store, FileDown, Package, FileUp } from "lucide-react";
+import { Store, FileDown, Package, FileUp, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportToExcel, importFromExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Transaction } from "@/types";
 import { useProducts } from "@/contexts/ProductContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { transactionsApi, dashboardApi } from "@/services/api";
 
 const Index = () => {
@@ -23,6 +24,8 @@ const Index = () => {
   });
   const [loading, setLoading] = useState(false);
   const { products, refreshProducts } = useProducts();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const loadTransactions = async () => {
     try {
@@ -157,6 +160,11 @@ const Index = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -172,12 +180,18 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">Gestão da sua loja de roupas</p>
               </div>
             </div>
-            <Link to="/products">
-              <Button variant="outline" className="gap-2">
-                <Package className="h-4 w-4" />
-                Gerenciar Produtos
+            <div className="flex items-center gap-2">
+              <Link to="/products">
+                <Button variant="outline" className="gap-2">
+                  <Package className="h-4 w-4" />
+                  Gerenciar Produtos
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Sair
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </header>

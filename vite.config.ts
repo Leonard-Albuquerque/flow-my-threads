@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => ({
     allowedHosts: [
         "localhost",
         ".ngrok-free.app",
+        "https://ami-gestor-api-production.up.railway.app/",
         // "cardapioapi-production-f508.up.railway.app", Vai ser a url do back end quando for pro ar
       ],
     proxy: {

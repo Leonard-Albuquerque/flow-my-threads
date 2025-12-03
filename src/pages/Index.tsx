@@ -236,6 +236,8 @@ const Index = () => {
             totalIncome={metrics.totalIncome}
             totalExpense={metrics.totalExpense}
             totalInvestment={metrics.totalInvestment}
+            transactions={transactions}
+            products={products}
           />
 
           {/* Chart */}

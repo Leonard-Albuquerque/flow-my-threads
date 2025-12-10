@@ -62,6 +62,9 @@ export const Dashboard = ({
     return acc;
   }, 0);
 
+    const saque = 100
+    const rest = totalProfit - saque;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
       
@@ -110,7 +113,7 @@ export const Dashboard = ({
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalProfit)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(rest)}</div>
           <p className="text-xs text-muted-foreground mt-1">Lucro líquido</p>
         </CardContent>
       </Card>

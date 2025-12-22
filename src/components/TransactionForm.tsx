@@ -15,7 +15,7 @@ import { ProductForm } from "./ProductForm";
 import { MultipleProductSaleForm } from "./MultipleProductSaleForm";
 import { Product, Transaction } from "@/types";
 
-export type TransactionType = "INCOME" | "EXPENSE" | "INVESTMENT";
+export type TransactionType = "INCOME" | "EXPENSE" | "INVESTMENT" | "CASHOUT";
 export type TransactionTypeWithoutIncome = Exclude<TransactionType, "INCOME">;
 
 
@@ -98,6 +98,8 @@ export const TransactionForm = ({
                   {/* <SelectItem value="INCOME">Venda</SelectItem>  */}
                   <SelectItem value="EXPENSE">Compra</SelectItem>
                   <SelectItem value="INVESTMENT">Investimento</SelectItem>
+                  <SelectItem value="CASHOUT">Saque</SelectItem>
+
                 </SelectContent>
               </Select>
             </div>

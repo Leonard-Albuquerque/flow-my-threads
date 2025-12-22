@@ -27,11 +27,18 @@ const Index = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const [cashout, setCashout] = useState<number>(0) 
+
   const loadTransactions = async () => {
     try {
       setLoading(true);
       const data = await transactionsApi.getAll();
       setTransactions(data);
+      const totalValue = data
+    .filter(t => t.type === "CASHOUT")
+    .reduce((acc, current) => acc + current.amount, 0); 
+
+    setCashout(totalValue);
     } catch (error) {
       console.error("Erro ao carregar transações:", error);
       toast.error("Erro ao carregar transações");
@@ -238,6 +245,7 @@ const Index = () => {
             totalInvestment={metrics.totalInvestment}
             transactions={transactions}
             products={products}
+            cashout={cashout}
           />
 
           {/* Chart */}

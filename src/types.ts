@@ -34,7 +34,7 @@ export interface TransactionProduct {
 
 export interface Transaction {
   id: string;
-  type: "INCOME" | "EXPENSE" | "INVESTMENT";
+  type: "INCOME" | "EXPENSE" | "INVESTMENT" | "CASHOUT";
   amount: number;
   description: string;
   date: string;

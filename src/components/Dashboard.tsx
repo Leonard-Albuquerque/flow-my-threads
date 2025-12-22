@@ -9,6 +9,7 @@ interface DashboardProps {
   totalInvestment: number;
   transactions: Transaction[];
   products: Product[];
+  cashout: number;
 }
 
 export const Dashboard = ({
@@ -17,7 +18,8 @@ export const Dashboard = ({
   totalExpense,
   totalInvestment,
   transactions,
-  products
+  products,
+  cashout
 }: DashboardProps) => {
 
   const formatCurrency = (value: number) => {
@@ -62,8 +64,7 @@ export const Dashboard = ({
     return acc;
   }, 0);
 
-    const saque = 100
-    const rest = totalProfit - saque;
+    const rest = totalProfit - cashout;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">

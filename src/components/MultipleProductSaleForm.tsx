@@ -25,13 +25,19 @@ interface MultipleProductSaleFormProps {
   products: Product[];
 }
 
-export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: MultipleProductSaleFormProps) => {
+export const MultipleProductSaleForm = ({
+  onSellMultipleProducts,
+  products,
+}: MultipleProductSaleFormProps) => {
   const [productSales, setProductSales] = useState<ProductSale[]>([
-    { productId: "", quantity: 1, sellingPrice: 0 }
+    { productId: "", quantity: 1, sellingPrice: 0 },
   ]);
 
   const addProductSale = () => {
-    setProductSales([...productSales, { productId: "", quantity: 1, sellingPrice: 0 }]);
+    setProductSales([
+      ...productSales,
+      { productId: "", quantity: 1, sellingPrice: 0 },
+    ]);
   };
 
   const removeProductSale = (index: number) => {
@@ -40,7 +46,11 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
     }
   };
 
-  const updateProductSale = (index: number, field: keyof ProductSale, value: string | number) => {
+  const updateProductSale = (
+    index: number,
+    field: keyof ProductSale,
+    value: string | number,
+  ) => {
     const updated = [...productSales];
     updated[index] = { ...updated[index], [field]: value };
     setProductSales(updated);
@@ -49,15 +59,21 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (productSales.some(sale => !sale.productId || !sale.quantity || !sale.sellingPrice)) {
+    if (
+      productSales.some(
+        (sale) => !sale.productId || !sale.quantity || !sale.sellingPrice,
+      )
+    ) {
       toast.error("Preencha todos os campos para todos os produtos");
       return;
     }
 
     // Check for duplicate products
-    const productIds = productSales.map(s => s.productId);
+    const productIds = productSales.map((s) => s.productId);
     if (new Set(productIds).size !== productIds.length) {
-      toast.error("Não é possível vender o mesmo produto múltiplas vezes na mesma transação");
+      toast.error(
+        "Não é possível vender o mesmo produto múltiplas vezes na mesma transação",
+      );
       return;
     }
 
@@ -66,13 +82,20 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
     toast.success("Venda múltipla registrada com sucesso!");
   };
 
-  const totalAmount = productSales.reduce((sum, sale) => sum + (sale.quantity * sale.sellingPrice), 0);
+  const totalAmount = productSales.reduce(
+    (sum, sale) => sum + sale.quantity * sale.sellingPrice,
+    0,
+  );
 
   const totalProfit = productSales.reduce((sum, sale) => {
     if (!sale.productId || !sale.sellingPrice) return sum;
-    const product = products.find(p => p.id === sale.productId);
+    const product = products.find((p) => p.id === sale.productId);
     if (!product) return sum;
-    return sum + (sale.sellingPrice - parseFloat(product.costPrice.toString())) * sale.quantity;
+    return (
+      sum +
+      (sale.sellingPrice - parseFloat(product.costPrice.toString())) *
+        sale.quantity
+    );
   }, 0);
 
   return (
@@ -103,62 +126,85 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
                   <Label htmlFor={`product-${index}`}>Produto</Label>
                   <Select
                     value={sale.productId}
-                    onValueChange={(value) => updateProductSale(index, 'productId', value)}
+                    onValueChange={(value) =>
+                      updateProductSale(index, "productId", value)
+                    }
                   >
                     <SelectTrigger id={`product-${index}`}>
                       <SelectValue placeholder="Selecione um produto" />
                     </SelectTrigger>
                     <SelectContent>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          {product.name} (Estoque: {product.quantity}) - Custo: R$ {parseFloat(product.costPrice.toString()).toFixed(2)}
-                        </SelectItem>
-                      ))}
+                      {products
+                        .filter((product) => product.quantity !== 0)
+                        .map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name +
+                              "   " +
+                              product.color +
+                              "   " +
+                              product.size}{" "}
+                            (Estoque: {product.quantity}) - Custo: R${" "}
+                            {parseFloat(product.costPrice.toString()).toFixed(
+                              2,
+                            )}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`quantity-${index}`}>Quantidade</Label>
-                  <Input
-                    id={`quantity-${index}`}
-                    type="number"
-                    min="1"
-                    value={sale.quantity}
-                    onChange={(e) =>
-                      updateProductSale(index, "quantity", parseInt(e.target.value) || 1)
-                    }
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`quantity-${index}`}>Quantidade</Label>
+                    <Input
+                      id={`quantity-${index}`}
+                      type="number"
+                      min="1"
+                      value={sale.quantity}
+                      onChange={(e) =>
+                        updateProductSale(
+                          index,
+                          "quantity",
+                          parseInt(e.target.value) || 1,
+                        )
+                      }
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor={`price-${index}`}>Preço de Venda (R$)</Label>
-                  <Input
-                    id={`price-${index}`}
-                    type="number"
-                    step="0.01"
-                    placeholder="0,00"
-                    value={sale.sellingPrice || ""}
-                    onChange={(e) =>
-                      updateProductSale(
-                        index,
-                        "sellingPrice",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor={`price-${index}`}>
+                      Preço de Venda (R$)
+                    </Label>
+                    <Input
+                      id={`price-${index}`}
+                      type="number"
+                      step="0.01"
+                      placeholder="0,00"
+                      value={sale.sellingPrice || ""}
+                      onChange={(e) =>
+                        updateProductSale(
+                          index,
+                          "sellingPrice",
+                          parseFloat(e.target.value) || 0,
+                        )
+                      }
+                    />
+                  </div>
                 </div>
-               </div>
-
 
                 {sale.productId && sale.sellingPrice > 0 && (
                   <div className="text-sm text-muted-foreground">
-                    Lucro: R$ {(() => {
-                      const product = products.find(p => p.id === sale.productId);
+                    Lucro: R${" "}
+                    {(() => {
+                      const product = products.find(
+                        (p) => p.id === sale.productId,
+                      );
                       if (!product) return "0,00";
-                      const profit = (sale.sellingPrice - parseFloat(product.costPrice.toString())) * sale.quantity;
-                      return profit.toFixed(2).replace('.', ',');
+                      const profit =
+                        (sale.sellingPrice -
+                          parseFloat(product.costPrice.toString())) *
+                        sale.quantity;
+                      return profit.toFixed(2).replace(".", ",");
                     })()}
                   </div>
                 )}
@@ -180,14 +226,14 @@ export const MultipleProductSaleForm = ({ onSellMultipleProducts, products }: Mu
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium">Total:</span>
               <span className="text-lg font-bold text-success">
-                R$ {totalAmount.toFixed(2).replace('.', ',')}
+                R$ {totalAmount.toFixed(2).replace(".", ",")}
               </span>
             </div>
 
             <div className="flex justify-between items-center mb-4">
               <span className="font-medium">Lucro Total:</span>
               <span className="text-lg font-bold text-blue-600">
-                R$ {totalProfit.toFixed(2).replace('.', ',')}
+                R$ {totalProfit.toFixed(2).replace(".", ",")}
               </span>
             </div>
 
